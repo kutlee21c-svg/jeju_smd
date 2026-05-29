@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>제주도 대기오염도 대시보드</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas for Image Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
             background-color: #f3f4f6;
         }
-        /* 기존 고정 A4 사이즈를 반응형 컨테이너로 변경 */
+        /* 반응형 컨테이너 */
         .dashboard-container {
             width: 100%;
             max-width: 1123px; /* 데스크탑 최대 너비 */
@@ -23,33 +27,40 @@
         }
     </style>
 </head>
-<body class="p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+<!-- break-keep 속성을 추가하여 한글 단어 끊김 방지 -->
+<body class="p-4 sm:p-6 lg:p-8 flex flex-col items-center break-keep">
 
+    <!-- 컨트롤 패널 -->
     <div class="w-full max-w-6xl flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-800">📊 데이터 시각화 리포트</h1>
             <p class="text-gray-500 text-sm mt-1">첨부된 결측치 보완 데이터를 기반으로 작성되었습니다.</p>
         </div>
-        <button onclick="downloadDashboard()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 flex items-center justify-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        <!-- whitespace-nowrap 추가로 모바일에서 버튼 텍스트 두 줄 방지 -->
+        <button onclick="downloadDashboard()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 flex items-center justify-center whitespace-nowrap">
+            <svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             리포트 이미지 저장
         </button>
     </div>
 
+    <!-- 대시보드 영역 -->
     <div id="dashboard-content" class="dashboard-container rounded-xl p-5 sm:p-8 flex flex-col">
         
+        <!-- Header -->
         <div class="border-b-2 border-gray-800 pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
                 <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">제주도 대기오염도 종합 분석 리포트</h2>
                 <p class="text-gray-600 mt-2 text-base sm:text-lg">주요 지역별 핵심 지표 및 연도별 추이 분석 (2022-2024)</p>
             </div>
-            <div class="text-left md:text-right">
+            <div class="text-left md:text-right shrink-0">
                 <p class="text-sm text-gray-500 font-medium">작성일: 2026. 05. 29</p>
                 <p class="text-sm text-gray-500 font-medium">데이터 출처: 제주도_대기오염도_결측치_보완</p>
             </div>
         </div>
 
+        <!-- KPI Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- KPI 1 -->
             <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 flex flex-col justify-center">
                 <span class="text-sm font-bold text-blue-600">2024년 평균 초미세먼지</span>
                 <div class="flex items-baseline mt-1">
@@ -58,6 +69,7 @@
                 </div>
                 <span class="text-xs text-green-600 font-bold mt-1">▼ 2022년 대비 개선됨</span>
             </div>
+            <!-- KPI 2 -->
             <div class="bg-teal-50 p-4 rounded-lg border border-teal-100 flex flex-col justify-center">
                 <span class="text-sm font-bold text-teal-600">2024년 평균 오존 농도</span>
                 <div class="flex items-baseline mt-1">
@@ -66,35 +78,40 @@
                 </div>
                 <span class="text-xs text-gray-500 font-medium mt-1">안정적 수준 유지</span>
             </div>
+            <!-- KPI 3 -->
             <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 flex flex-col justify-center">
                 <span class="text-sm font-bold text-yellow-600">초미세먼지 최고/최저 (2024)</span>
                 <div class="flex justify-between items-center mt-2">
                     <div class="text-center w-1/2 border-r border-yellow-200">
-                        <div class="text-xs text-gray-500">최고 (남원읍)</div>
-                        <div class="text-lg font-black text-gray-800">13 <span class="text-xs font-normal">㎍/㎥</span></div>
+                        <div class="text-xs text-gray-500 whitespace-nowrap">최고 (남원읍)</div>
+                        <div class="text-lg font-black text-gray-800 whitespace-nowrap">13 <span class="text-xs font-normal">㎍/㎥</span></div>
                     </div>
                     <div class="text-center w-1/2">
-                        <div class="text-xs text-gray-500">최저 (강정/대정)</div>
-                        <div class="text-lg font-black text-gray-800">11 <span class="text-xs font-normal">㎍/㎥</span></div>
+                        <div class="text-xs text-gray-500 whitespace-nowrap">최저 (강정/대정)</div>
+                        <div class="text-lg font-black text-gray-800 whitespace-nowrap">11 <span class="text-xs font-normal">㎍/㎥</span></div>
                     </div>
                 </div>
             </div>
+            <!-- KPI 4 -->
             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col justify-center">
                 <span class="text-sm font-bold text-gray-600">기타 오염물질 상태</span>
                 <div class="mt-2 text-sm text-gray-700">
-                    <p class="mb-1">이산화질소: <b>0.005 ppm</b> (매우 좋음)</p>
-                    <p>이산화황: <b>0.001 ppm</b> (매우 좋음)</p>
+                    <p class="mb-1">이산화질소: <b>0.005 ppm</b> <span class="text-xs text-gray-500 whitespace-nowrap">(매우 좋음)</span></p>
+                    <p>이산화황: <b>0.001 ppm</b> <span class="text-xs text-gray-500 whitespace-nowrap">(매우 좋음)</span></p>
                 </div>
             </div>
         </div>
 
+        <!-- Charts Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Chart 1: Trend -->
             <div class="border border-gray-200 p-4 rounded-lg bg-white flex flex-col">
                 <h3 class="text-md font-bold text-gray-800 mb-4">📈 연도별 초미세먼지(PM2.5) 추이 (지역별)</h3>
                 <div class="relative w-full h-64 lg:h-72">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
+            <!-- Chart 2: Regional Comparison -->
             <div class="border border-gray-200 p-4 rounded-lg bg-white flex flex-col">
                 <h3 class="text-md font-bold text-gray-800 mb-4">📊 2024년 지역별 주요 오염물질 비교</h3>
                 <div class="relative w-full h-64 lg:h-72">
@@ -103,9 +120,10 @@
             </div>
         </div>
 
+        <!-- Analysis Content Section -->
         <div class="bg-gray-800 rounded-lg p-5 sm:p-6 text-white mt-auto">
             <h3 class="text-lg font-bold mb-4 flex items-center text-blue-300">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                <svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                 데이터 분석 인사이트
             </h3>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-sm">
@@ -135,7 +153,6 @@
     <script>
         // 데이터 파싱 및 차트 렌더링
         document.addEventListener("DOMContentLoaded", function() {
-            // 차트 기본 폰트 설정
             Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
             
             const pm25Data = {
@@ -156,7 +173,6 @@
                 }
             };
 
-            // 차트 1
             const ctxTrend = document.getElementById('trendChart').getContext('2d');
             new Chart(ctxTrend, {
                 type: 'line',
@@ -174,7 +190,6 @@
                 }
             });
 
-            // 차트 2
             const ctxBar = document.getElementById('barChart').getContext('2d');
             new Chart(ctxBar, {
                 type: 'bar',
@@ -217,13 +232,11 @@
             const btn = document.querySelector('button');
             const originalText = btn.innerHTML;
             
-            // 캡쳐 중 버튼 비활성화
             btn.innerHTML = '저장 중...';
             btn.classList.add('opacity-75', 'cursor-wait');
 
-            // html2canvas 설정
             html2canvas(dashboard, {
-                scale: window.devicePixelRatio || 2, // 기기 해상도에 맞춘 스케일
+                scale: window.devicePixelRatio || 2,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 windowWidth: dashboard.scrollWidth,
@@ -235,7 +248,6 @@
                 link.href = image;
                 link.click();
                 
-                // 버튼 복구
                 btn.innerHTML = originalText;
                 btn.classList.remove('opacity-75', 'cursor-wait');
             }).catch(err => {
