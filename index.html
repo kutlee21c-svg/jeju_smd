@@ -4,173 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>제주도 대기오염도 대시보드</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2canvas for Image Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
             background-color: #f3f4f6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
         }
-        /* A4 Landscape Size (297mm x 210mm) -> Approx 1123px x 794px at 96 DPI */
-        .a4-container {
-            width: 1123px;
-            height: 794px;
+        /* 기존 고정 A4 사이즈를 반응형 컨테이너로 변경 */
+        .dashboard-container {
+            width: 100%;
+            max-width: 1123px; /* 데스크탑 최대 너비 */
             background-color: white;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            padding: 40px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
-        /* Scale down for smaller screens while maintaining aspect ratio */
-        @media (max-width: 1200px) {
-            .a4-wrapper {
-                transform: scale(0.8);
-                transform-origin: top center;
-                margin-bottom: -150px;
-            }
-        }
-        @media (max-width: 900px) {
-            .a4-wrapper {
-                transform: scale(0.6);
-                margin-bottom: -300px;
-            }
+            margin: 0 auto;
         }
     </style>
 </head>
-<body>
+<body class="p-4 sm:p-6 lg:p-8 flex flex-col items-center">
 
-    <!-- 컨트롤 패널 -->
-    <div class="w-full max-w-5xl flex justify-between items-center mb-6 px-4">
+    <div class="w-full max-w-6xl flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">📊 데이터 시각화 리포트</h1>
-            <p class="text-gray-500 text-sm">첨부된 결측치 보완 데이터를 기반으로 작성되었습니다.</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">📊 데이터 시각화 리포트</h1>
+            <p class="text-gray-500 text-sm mt-1">첨부된 결측치 보완 데이터를 기반으로 작성되었습니다.</p>
         </div>
-        <button onclick="downloadDashboard()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 flex items-center">
+        <button onclick="downloadDashboard()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 flex items-center justify-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            이미지 저장 (A4 비율)
+            리포트 이미지 저장
         </button>
     </div>
 
-    <!-- A4 대시보드 영역 -->
-    <div class="a4-wrapper">
-        <div id="dashboard-content" class="a4-container rounded-xl">
-            
-            <!-- Header -->
-            <div class="border-b-2 border-gray-800 pb-4 mb-6 flex justify-between items-end">
-                <div>
-                    <h2 class="text-3xl font-black text-gray-900 tracking-tight">제주도 대기오염도 종합 분석 리포트</h2>
-                    <p class="text-gray-600 mt-2 text-lg">주요 지역별 핵심 지표 및 연도별 추이 분석 (2022-2024)</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-sm text-gray-500 font-medium">작성일: 2026. 05. 29</p>
-                    <p class="text-sm text-gray-500 font-medium">데이터 출처: 제주도_대기오염도_결측치_보완</p>
-                </div>
+    <div id="dashboard-content" class="dashboard-container rounded-xl p-5 sm:p-8 flex flex-col">
+        
+        <div class="border-b-2 border-gray-800 pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">제주도 대기오염도 종합 분석 리포트</h2>
+                <p class="text-gray-600 mt-2 text-base sm:text-lg">주요 지역별 핵심 지표 및 연도별 추이 분석 (2022-2024)</p>
             </div>
-
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-4 gap-4 mb-6">
-                <!-- KPI 1 -->
-                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 flex flex-col justify-center">
-                    <span class="text-sm font-bold text-blue-600">2024년 평균 초미세먼지</span>
-                    <div class="flex items-baseline mt-1">
-                        <span class="text-3xl font-black text-gray-800">12.0</span>
-                        <span class="text-sm text-gray-500 ml-1">㎍/㎥</span>
-                    </div>
-                    <span class="text-xs text-green-600 font-bold mt-1">▼ 2022년 대비 개선됨</span>
-                </div>
-                <!-- KPI 2 -->
-                <div class="bg-teal-50 p-4 rounded-lg border border-teal-100 flex flex-col justify-center">
-                    <span class="text-sm font-bold text-teal-600">2024년 평균 오존 농도</span>
-                    <div class="flex items-baseline mt-1">
-                        <span class="text-3xl font-black text-gray-800">0.042</span>
-                        <span class="text-sm text-gray-500 ml-1">ppm</span>
-                    </div>
-                    <span class="text-xs text-gray-500 font-medium mt-1">안정적 수준 유지</span>
-                </div>
-                <!-- KPI 3 -->
-                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 flex flex-col justify-center">
-                    <span class="text-sm font-bold text-yellow-600">초미세먼지 최고/최저 지역 (2024)</span>
-                    <div class="flex justify-between items-center mt-2">
-                        <div class="text-center w-1/2 border-r border-yellow-200">
-                            <div class="text-xs text-gray-500">최고 (남원읍)</div>
-                            <div class="text-lg font-black text-gray-800">13 <span class="text-xs font-normal">㎍/㎥</span></div>
-                        </div>
-                        <div class="text-center w-1/2">
-                            <div class="text-xs text-gray-500">최저 (강정/대정)</div>
-                            <div class="text-lg font-black text-gray-800">11 <span class="text-xs font-normal">㎍/㎥</span></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- KPI 4 -->
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col justify-center">
-                    <span class="text-sm font-bold text-gray-600">기타 오염물질 상태</span>
-                    <div class="mt-2 text-sm text-gray-700">
-                        <p>이산화질소: <b>0.005 ppm</b> (매우 좋음)</p>
-                        <p>이산화황: <b>0.001 ppm</b> (매우 좋음)</p>
-                    </div>
-                </div>
+            <div class="text-left md:text-right">
+                <p class="text-sm text-gray-500 font-medium">작성일: 2026. 05. 29</p>
+                <p class="text-sm text-gray-500 font-medium">데이터 출처: 제주도_대기오염도_결측치_보완</p>
             </div>
-
-            <!-- Charts Section -->
-            <div class="grid grid-cols-2 gap-6 mb-6 flex-grow">
-                <!-- Chart 1: Trend -->
-                <div class="border border-gray-200 p-4 rounded-lg bg-white flex flex-col">
-                    <h3 class="text-md font-bold text-gray-800 mb-2">📈 연도별 초미세먼지(PM2.5) 추이 (지역별)</h3>
-                    <div class="relative flex-grow h-48">
-                        <canvas id="trendChart"></canvas>
-                    </div>
-                </div>
-                <!-- Chart 2: Regional Comparison -->
-                <div class="border border-gray-200 p-4 rounded-lg bg-white flex flex-col">
-                    <h3 class="text-md font-bold text-gray-800 mb-2">📊 2024년 지역별 주요 오염물질 비교</h3>
-                    <div class="relative flex-grow h-48">
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Analysis Content Section -->
-            <div class="bg-gray-800 rounded-lg p-5 text-white h-auto mt-auto">
-                <h3 class="text-lg font-bold mb-3 flex items-center text-blue-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                    데이터 분석 인사이트
-                </h3>
-                <div class="grid grid-cols-3 gap-6 text-sm">
-                    <div>
-                        <h4 class="font-bold text-blue-200 mb-1">1. 초미세먼지 전반적 개선 추세</h4>
-                        <p class="text-gray-300 leading-relaxed">
-                            2022년 평균 13.3㎍/㎥에서 2024년 11.6㎍/㎥로 <b>초미세먼지 농도가 뚜렷한 감소(개선) 추세</b>를 보이고 있습니다. 특히 강정동과 대정읍의 수치가 14에서 11로 크게 낮아졌습니다.
-                        </p>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-blue-200 mb-1">2. 오존(O₃) 농도의 안정화</h4>
-                        <p class="text-gray-300 leading-relaxed">
-                            오존 농도는 지역별로 0.039 ~ 0.044 ppm 사이를 기록하며 연도별 큰 변동 없이 <b>안정적이고 청정한 상태</b>를 유지하고 있습니다. 대정읍이 0.0446ppm으로 미세하게 가장 높습니다.
-                        </p>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-blue-200 mb-1">3. 종합 대기질 평가</h4>
-                        <p class="text-gray-300 leading-relaxed">
-                            이산화질소(0.005ppm 내외), 이산화황(0.001ppm 내외) 등 산업/교통 관련 오염물질 수치가 기준치 대비 현저히 낮아, <b>제주도 남부/서부 지역의 대기질이 매우 우수함</b>을 데이터로 확인할 수 있습니다.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
         </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 flex flex-col justify-center">
+                <span class="text-sm font-bold text-blue-600">2024년 평균 초미세먼지</span>
+                <div class="flex items-baseline mt-1">
+                    <span class="text-3xl font-black text-gray-800">12.0</span>
+                    <span class="text-sm text-gray-500 ml-1">㎍/㎥</span>
+                </div>
+                <span class="text-xs text-green-600 font-bold mt-1">▼ 2022년 대비 개선됨</span>
+            </div>
+            <div class="bg-teal-50 p-4 rounded-lg border border-teal-100 flex flex-col justify-center">
+                <span class="text-sm font-bold text-teal-600">2024년 평균 오존 농도</span>
+                <div class="flex items-baseline mt-1">
+                    <span class="text-3xl font-black text-gray-800">0.042</span>
+                    <span class="text-sm text-gray-500 ml-1">ppm</span>
+                </div>
+                <span class="text-xs text-gray-500 font-medium mt-1">안정적 수준 유지</span>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 flex flex-col justify-center">
+                <span class="text-sm font-bold text-yellow-600">초미세먼지 최고/최저 (2024)</span>
+                <div class="flex justify-between items-center mt-2">
+                    <div class="text-center w-1/2 border-r border-yellow-200">
+                        <div class="text-xs text-gray-500">최고 (남원읍)</div>
+                        <div class="text-lg font-black text-gray-800">13 <span class="text-xs font-normal">㎍/㎥</span></div>
+                    </div>
+                    <div class="text-center w-1/2">
+                        <div class="text-xs text-gray-500">최저 (강정/대정)</div>
+                        <div class="text-lg font-black text-gray-800">11 <span class="text-xs font-normal">㎍/㎥</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col justify-center">
+                <span class="text-sm font-bold text-gray-600">기타 오염물질 상태</span>
+                <div class="mt-2 text-sm text-gray-700">
+                    <p class="mb-1">이산화질소: <b>0.005 ppm</b> (매우 좋음)</p>
+                    <p>이산화황: <b>0.001 ppm</b> (매우 좋음)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="border border-gray-200 p-4 rounded-lg bg-white flex flex-col">
+                <h3 class="text-md font-bold text-gray-800 mb-4">📈 연도별 초미세먼지(PM2.5) 추이 (지역별)</h3>
+                <div class="relative w-full h-64 lg:h-72">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            <div class="border border-gray-200 p-4 rounded-lg bg-white flex flex-col">
+                <h3 class="text-md font-bold text-gray-800 mb-4">📊 2024년 지역별 주요 오염물질 비교</h3>
+                <div class="relative w-full h-64 lg:h-72">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-5 sm:p-6 text-white mt-auto">
+            <h3 class="text-lg font-bold mb-4 flex items-center text-blue-300">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                데이터 분석 인사이트
+            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-sm">
+                <div>
+                    <h4 class="font-bold text-blue-200 mb-2">1. 초미세먼지 전반적 개선 추세</h4>
+                    <p class="text-gray-300 leading-relaxed">
+                        2022년 평균 13.3㎍/㎥에서 2024년 11.6㎍/㎥로 <b>초미세먼지 농도가 뚜렷한 감소(개선) 추세</b>를 보이고 있습니다. 특히 강정동과 대정읍의 수치가 14에서 11로 크게 낮아졌습니다.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-blue-200 mb-2">2. 오존(O₃) 농도의 안정화</h4>
+                    <p class="text-gray-300 leading-relaxed">
+                        오존 농도는 지역별로 0.039 ~ 0.044 ppm 사이를 기록하며 연도별 큰 변동 없이 <b>안정적이고 청정한 상태</b>를 유지하고 있습니다. 대정읍이 0.0446ppm으로 미세하게 가장 높습니다.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-blue-200 mb-2">3. 종합 대기질 평가</h4>
+                    <p class="text-gray-300 leading-relaxed">
+                        이산화질소(0.005ppm 내외), 이산화황(0.001ppm 내외) 등 산업/교통 관련 오염물질 수치가 기준치 대비 현저히 낮아, <b>제주도 남부/서부 지역의 대기질이 매우 우수함</b>을 데이터로 확인할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -179,28 +138,31 @@
             // 차트 기본 폰트 설정
             Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
             
-            // 데이터 (제공된 snippet 기반)
             const pm25Data = {
                 labels: ['2022', '2023', '2024'],
                 datasets: [
                     { label: '강정동', data: [14, 13, 11], borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3 },
                     { label: '남원읍', data: [12, 13, 13], borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3 },
                     { label: '대정읍', data: [14, 15, 11], borderColor: '#f59e0b', backgroundColor: '#f59e0b', tension: 0.3 },
-                    { label: '동홍동', data: [13, 12, 12], borderColor: '#8b5cf6', backgroundColor: '#8b5cf6', tension: 0.3 } // 동홍동은 추정값 포함
+                    { label: '동홍동', data: [13, 12, 12], borderColor: '#8b5cf6', backgroundColor: '#8b5cf6', tension: 0.3 }
                 ]
             };
 
-            // 차트 1: 연도별 초미세먼지 추이 (Line Chart)
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6, padding: 15 } }
+                }
+            };
+
+            // 차트 1
             const ctxTrend = document.getElementById('trendChart').getContext('2d');
             new Chart(ctxTrend, {
                 type: 'line',
                 data: pm25Data,
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6 } }
-                    },
+                    ...chartOptions,
                     scales: {
                         y: { 
                             beginAtZero: false, 
@@ -212,42 +174,28 @@
                 }
             });
 
-            // 차트 2: 2024년 지역별 주요 지표 (Bar Chart)
-            // 2024 data: 강정동(11, 0.041), 남원읍(13, 0.039), 대정읍(11, 0.044), 동홍동(12, 0.042)
+            // 차트 2
             const ctxBar = document.getElementById('barChart').getContext('2d');
             new Chart(ctxBar, {
                 type: 'bar',
                 data: {
                     labels: ['강정동', '남원읍', '대정읍', '동홍동'],
                     datasets: [
-                        {
-                            label: '초미세먼지 (㎍/㎥)',
-                            data: [11, 13, 11, 12],
-                            backgroundColor: '#3b82f6',
-                            borderRadius: 4,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: '오존 (ppm x 1000)', // 가독성을 위해 스케일 조정
-                            data: [41.2, 39.4, 44.6, 42.0], 
-                            backgroundColor: '#10b981',
-                            borderRadius: 4,
-                            yAxisID: 'y'
-                        }
+                        { label: '초미세먼지 (㎍/㎥)', data: [11, 13, 11, 12], backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: '오존 (ppm x 1000)', data: [41.2, 39.4, 44.6, 42.0], backgroundColor: '#10b981', borderRadius: 4 }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    ...chartOptions,
                     plugins: {
-                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6 } },
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6, padding: 15 } },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
                                     if (label) { label += ': '; }
                                     if (context.datasetIndex === 1) {
-                                        label += (context.raw / 1000).toFixed(3) + ' ppm'; // 원래 오존 수치로 표시
+                                        label += (context.raw / 1000).toFixed(3) + ' ppm';
                                     } else {
                                         label += context.raw;
                                     }
@@ -257,31 +205,30 @@
                         }
                     },
                     scales: {
-                        y: { 
-                            beginAtZero: true,
-                            title: { display: false }
-                        }
+                        y: { beginAtZero: true, title: { display: false } }
                     }
                 }
             });
         });
 
-        // 이미지 다운로드 함수 (A4 크기 유지)
+        // 반응형 이미지 다운로드 함수
         function downloadDashboard() {
             const dashboard = document.getElementById('dashboard-content');
             const btn = document.querySelector('button');
+            const originalText = btn.innerHTML;
             
-            // 캡쳐 중 버튼 비활성화 시각화 (옵션)
+            // 캡쳐 중 버튼 비활성화
             btn.innerHTML = '저장 중...';
             btn.classList.add('opacity-75', 'cursor-wait');
 
-            // html2canvas 설정 (고해상도 스케일업)
+            // html2canvas 설정
             html2canvas(dashboard, {
-                scale: 2, // 고해상도 저장을 위해 2배 스케일
+                scale: window.devicePixelRatio || 2, // 기기 해상도에 맞춘 스케일
                 useCORS: true,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                windowWidth: dashboard.scrollWidth,
+                windowHeight: dashboard.scrollHeight
             }).then(canvas => {
-                // 이미지 변환 및 다운로드
                 const image = canvas.toDataURL("image/png");
                 const link = document.createElement('a');
                 link.download = '제주도_대기오염_분석리포트.png';
@@ -289,12 +236,13 @@
                 link.click();
                 
                 // 버튼 복구
-                btn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 이미지 저장 (A4 비율)';
+                btn.innerHTML = originalText;
                 btn.classList.remove('opacity-75', 'cursor-wait');
             }).catch(err => {
                 console.error("이미지 저장 실패:", err);
                 alert("이미지 저장 중 오류가 발생했습니다.");
-                btn.innerHTML = '저장 실패';
+                btn.innerHTML = originalText;
+                btn.classList.remove('opacity-75', 'cursor-wait');
             });
         }
     </script>
